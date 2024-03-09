@@ -5,18 +5,21 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Battle/Unit/Create Unit Datavase", fileName = "UnitDatabase", order = 1)]
 public class UnitsDatabaseSO : ScriptableObject
 {
-    [SerializeField] private List<UnitModelSO> unitModelSOs = new List<UnitModelSO>();
+    [SerializeField] private List<UnitModelSO> _unitModelSOs = new List<UnitModelSO>();
+    public List<UnitModelSO> unitModelSOs => _unitModelSOs;
 
     public void AddUnitModel(UnitModelSO unitModelSO)
     {
-        for (int i = 0; i < unitModelSOs.Count; i++)
+        for (int i = 0; i < _unitModelSOs.Count; i++)
         {
-            if(unitModelSOs[i].unitType == unitModelSO.unitType)
+            if(_unitModelSOs[i].unitType == unitModelSO.unitType)
             {
                 return;
             }
         }
 
-        unitModelSOs.Add(unitModelSO);
+        _unitModelSOs.Add(unitModelSO);
+
+        UnityEditor.EditorUtility.SetDirty(this);
     }
 }

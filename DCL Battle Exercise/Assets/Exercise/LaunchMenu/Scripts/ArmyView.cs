@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public interface IArmyView
 {
@@ -9,20 +9,19 @@ public interface IArmyView
 
 public class ArmyView : MonoBehaviour, IArmyView
 {
-    [SerializeField] private Slider warriorsCount;
-    [SerializeField] private TextMeshProUGUI warriorsLabel;
-    [SerializeField] private Slider archersCount;
-    [SerializeField] private TextMeshProUGUI archersLabel;
-    [SerializeField] private TMP_Dropdown strategyDropdown;
+    [SerializeField] private ArmyUnitView _armyUnitViewPrefab;
+    [SerializeField] private TextMeshProUGUI _title;
+    [SerializeField] private TMP_Dropdown _strategyDropdown;
+    [SerializeField] private Transform _armyUnitsParent;
+    private List<ArmyUnitView> _armyUnitViews = new List<ArmyUnitView>();
 
     private EnumDropdownWrapper<ArmyStrategy> enumDropdown;
     private IArmyPresenter presenter = null;
+    private ArmyModelSO _armyModelSO;
 
     private void Awake()
     {
-        warriorsCount.onValueChanged.AddListener(OnWarriorsCountChanged);
-        archersCount.onValueChanged.AddListener(OnArchersCountChanged);
-        enumDropdown = new EnumDropdownWrapper<ArmyStrategy>(strategyDropdown);
+        enumDropdown = new EnumDropdownWrapper<ArmyStrategy>(_strategyDropdown);
         enumDropdown.OnValueChanged += OnStrategyChanged;
     }
 
@@ -33,23 +32,18 @@ public class ArmyView : MonoBehaviour, IArmyView
 
     public void UpdateWithModel(IArmyModel model)
     {
-        warriorsCount.SetValueWithoutNotify(model.warriors);
-        warriorsLabel.text = model.warriors.ToString();
-        archersCount.SetValueWithoutNotify(model.archers);
-        archersLabel.text = model.archers.ToString();
-        enumDropdown.SetValueWithoutNotify(model.strategy);
-    }
+        _armyModelSO = model as ArmyModelSO;
+        _title.text = _armyModelSO.armyTitle;
 
-    private void OnWarriorsCountChanged(float value)
-    {
-        presenter?.UpdateWarriors((int)value);
-        warriorsLabel.text = ((int)value).ToString();
-    }
+        for (int i = 0; i < _armyModelSO.armyData.Length; i++)
+        {
+            ArmyUnitView armyUnitView = Instantiate(_armyUnitViewPrefab, _armyUnitsParent);
+            armyUnitView.Initialize(_armyModelSO.armyData[i].unitType, _armyModelSO);
 
-    private void OnArchersCountChanged(float value)
-    {
-        presenter?.UpdateArchers((int)value);
-        archersLabel.text = ((int)value).ToString();
+            _armyUnitViews.Add(armyUnitView);
+        }
+
+        enumDropdown.SetValueWithoutNotify(_armyModelSO.strategy);
     }
 
     private void OnStrategyChanged(ArmyStrategy strategy)

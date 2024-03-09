@@ -13,6 +13,7 @@ public class UnitModelSO : ScriptableObject
 
     private void OnValidate()
     {
+        return;
         Resources.Load<UnitsDatabaseSO>("UnitDatabase")?.AddUnitModel(this);
     }
 }

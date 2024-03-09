@@ -11,7 +11,11 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 02f23b66324495249b6ec4eafa794b7a, type: 3}
   m_Name: ArmyModel1
-  m_EditorClassIdentifier: Assembly-CSharp::ArmyModelSO
-  warriorsValue: 100
-  archersValue: 100
-  strategyValue: 0
+  m_EditorClassIdentifier: 
+  _armyTitle: Army 1
+  armyDataValue:
+  - unitType: 0
+    amount: 0
+  - unitType: 1
+    amount: 0
+  strategyValue: 1
