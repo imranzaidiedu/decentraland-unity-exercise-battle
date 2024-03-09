@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public abstract class UnitBase : MonoBehaviour
+public abstract class UnitBase
 {
+    public GameObject gameObject { get; private set; }
+    public Animator animator { get; private set; }
+    public Transform transform { get; private set; }
+
     public float health { get; protected set; }
     public float defense { get; protected set; }
     public float attack { get; protected set; }
@@ -21,10 +25,25 @@ public abstract class UnitBase : MonoBehaviour
     private Vector3 lastPosition;
 
     public abstract void Attack(GameObject enemy);
-
-
     protected abstract void UpdateDefensive(List<GameObject> allies, List<GameObject> enemies);
     protected abstract void UpdateBasic(List<GameObject> allies, List<GameObject> enemies);
+
+    public virtual void Awake()
+    {
+
+    }
+
+    public UnitBase(GameObject unitObject, Army army, IArmyModel armyModel, Bounds spawnBounds)
+    {
+        gameObject = unitObject;
+        this.army = army;
+        this.armyModel = armyModel;
+
+        transform = gameObject.transform;
+        animator = gameObject.GetComponent<Animator>();
+        gameObject.GetComponentInChildren<Renderer>().material.color = army.color;
+        transform.position = Utils.GetRandomPosInBounds(spawnBounds);
+    }
 
     public virtual void Move( Vector3 delta )
     {
@@ -60,17 +79,15 @@ public abstract class UnitBase : MonoBehaviour
             else if ( this is Archer )
                 army.archers.Remove(this as Archer);
 
-            var animator = GetComponentInChildren<Animator>();
             animator?.SetTrigger("Death");
         }
         else
         {
-            var animator = GetComponentInChildren<Animator>();
             animator?.SetTrigger("Hit");
         }
     }
 
-    private void Update()
+    public void Update()
     {
         if ( health < 0 )
             return;
@@ -90,7 +107,6 @@ public abstract class UnitBase : MonoBehaviour
                 break;
         }
 
-        var animator = GetComponentInChildren<Animator>();
         animator.SetFloat("MovementSpeed", (transform.position - lastPosition).magnitude / speed);
         lastPosition = transform.position;
     }
