@@ -16,6 +16,8 @@ public abstract partial class UnitBase
     [HideInInspector] public float attackCooldown;
 
     private Vector3 lastPosition;
+    List<UnitBase> _allies;
+    List<UnitBase> _enemies;
 
     public abstract void Attack(UnitBase enemy);
 
@@ -74,25 +76,28 @@ public abstract partial class UnitBase
         if (properties.health < 0 )
             return;
 
-        List<UnitBase> allies = army.GetUnits();
-        List<UnitBase> enemies = army.enemyArmy.GetUnits();
+        _allies = army.GetUnits();
+        _enemies = army.enemyArmy.GetUnits();
 
-        UpdateBasicRules(allies, enemies);
-        strategy.Update(allies, enemies);
+        UpdateBasicRules();
+        strategy.Update(_allies, _enemies);
 
         animator.SetFloat("MovementSpeed", (transform.position - lastPosition).magnitude / properties.speed);
         lastPosition = transform.position;
     }
 
-    void UpdateBasicRules(List<UnitBase> allies, List<UnitBase> enemies)
+    void UpdateBasicRules()
     {
         attackCooldown -= Time.deltaTime;
-        EvadeAllies(allies);
+        EvadeAllies();
     }
 
-    void EvadeAllies(List<UnitBase> allies)
+    void EvadeAllies()
     {
-        var allUnits = army.GetUnits().Union(army.enemyArmy.GetUnits()).ToList();
+        //Todo: Update this logic to use lesser queries and use global variables instead
+        //Also use constants instead of using values like 80.0f
+
+        List<UnitBase> allUnits = army.GetUnits().Union(army.enemyArmy.GetUnits()).ToList();
 
         Vector3 center = Utils.GetCenter(allUnits);
 

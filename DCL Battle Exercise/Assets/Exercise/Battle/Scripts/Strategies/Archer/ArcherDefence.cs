@@ -6,7 +6,6 @@ public class ArcherDefence : Strategy
 {
     public ArcherDefence(UnitBase unitBase) : base(unitBase)
     {
-        
     }
 
     public override UnitType unitType { get; protected set; } = UnitType.ARCHER;

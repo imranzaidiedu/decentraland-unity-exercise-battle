@@ -107,6 +107,4 @@ public class BattleInstantiator : MonoBehaviour
 
         Camera.main.transform.forward += (_forwardTarget - Camera.main.transform.forward) * 0.1f;
     }
-
-    
 }
