@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ArmyModel2
   m_EditorClassIdentifier: 
   _armyTitle: Army 2
+  _color: {r: 0, g: 1, b: 0.11449838, a: 0}
   armyDataValue:
   - unitType: 0
     amount: 0

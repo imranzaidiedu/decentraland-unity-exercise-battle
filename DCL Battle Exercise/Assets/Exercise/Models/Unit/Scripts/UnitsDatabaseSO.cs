@@ -22,4 +22,9 @@ public class UnitsDatabaseSO : ScriptableObject
 
         UnityEditor.EditorUtility.SetDirty(this);
     }
+
+    public UnitModelSO GetModelByType(UnitType unitType)
+    {
+        return _unitModelSOs.Find(x => x.unitType == unitType);
+    }
 }

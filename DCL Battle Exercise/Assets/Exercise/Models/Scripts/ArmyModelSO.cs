@@ -4,7 +4,10 @@ using UnityEngine;
 public class ArmyModelSO : ScriptableObject, IArmyModel
 {
     [SerializeField] private string _armyTitle = "Army";
+    [SerializeField] private Color _color;
+
     public string armyTitle => _armyTitle;
+    public Color color => _color;
 
     [SerializeField] private ArmyData[] armyDataValue;
     public ArmyData[] armyData

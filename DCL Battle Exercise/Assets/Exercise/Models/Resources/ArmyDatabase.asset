@@ -12,4 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e71510b9e8864a8f98495b89c8ff9c0, type: 3}
   m_Name: ArmyDatabase
   m_EditorClassIdentifier: 
-  _armyModelSOs: []
+  _armyModelSOs:
+  - {fileID: 11400000, guid: a6c80dd762eaa2942967f75607f7c7a3, type: 2}
+  - {fileID: 11400000, guid: 72f780312aa8e3c40b08fe23dd9b7117, type: 2}
