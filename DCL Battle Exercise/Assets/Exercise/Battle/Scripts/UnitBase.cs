@@ -3,35 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public abstract class UnitBase
+public abstract partial class UnitBase
 {
     public GameObject gameObject { get; private set; }
     public Animator animator { get; private set; }
     public Transform transform { get; private set; }
+    public Properties properties { get; protected set; } = new Properties();
 
-    public float health { get; protected set; }
-    public float defense { get; protected set; }
-    public float attack { get; protected set; }
-    public float maxAttackCooldown { get; protected set; }
-    public float postAttackDelay { get; protected set; }
-    public float speed { get; protected set; } = 0.1f;
+    [HideInInspector] public Army army;
+    [HideInInspector] public Strategy strategy;
+    [HideInInspector] public IArmyModel armyModel;
+    [HideInInspector] public float attackCooldown;
 
-    public Army army;
-
-    [NonSerialized]
-    public IArmyModel armyModel;
-
-    protected float attackCooldown;
     private Vector3 lastPosition;
 
-    public abstract void Attack(GameObject enemy);
-    protected abstract void UpdateDefensive(List<GameObject> allies, List<GameObject> enemies);
-    protected abstract void UpdateBasic(List<GameObject> allies, List<GameObject> enemies);
-
-    public virtual void Awake()
-    {
-
-    }
+    public abstract void Attack(UnitBase enemy);
 
     public UnitBase(GameObject unitObject, Army army, IArmyModel armyModel, Bounds spawnBounds)
     {
@@ -47,38 +33,34 @@ public abstract class UnitBase
 
     public virtual void Move( Vector3 delta )
     {
-        if (attackCooldown > maxAttackCooldown - postAttackDelay)
+        if (attackCooldown > properties.maxAttackCooldown - properties.postAttackDelay)
             return;
 
-        transform.position += delta * speed;
+        transform.position += delta * properties.speed;
     }
 
-    public virtual void Hit( GameObject sourceGo )
+    public virtual void Hit(UnitBase source, float damage = 0f)
     {
-        UnitBase source = sourceGo.GetComponent<UnitBase>();
-        float sourceAttack = 0;
+        float sourceAttack;
 
-        if ( source != null )
+        if (source != null)
         {
-            sourceAttack = source.attack;
+            sourceAttack = source.properties.attack;
         }
         else
         {
-            ArcherArrow arrow = sourceGo.GetComponent<ArcherArrow>();
-            sourceAttack = arrow.attack;
+            sourceAttack = damage;
         }
 
-        health -= Mathf.Max(sourceAttack - defense, 0);
+        properties.health -= Mathf.Max(sourceAttack - properties.defense, 0);
 
-        if ( health < 0 )
+        if (properties.health < 0 )
         {
-            transform.forward = sourceGo.transform.position - transform.position;
+            if (source != null)
+                transform.forward = source.transform.position - transform.position;
 
-            if ( this is Warrior )
-                army.warriors.Remove(this as Warrior);
-            else if ( this is Archer )
-                army.archers.Remove(this as Archer);
-
+            army.RemoveUnit(this);
+            
             animator?.SetTrigger("Death");
         }
         else
@@ -89,35 +71,26 @@ public abstract class UnitBase
 
     public void Update()
     {
-        if ( health < 0 )
+        if (properties.health < 0 )
             return;
 
-        List<GameObject> allies = army.GetUnits();
-        List<GameObject> enemies = army.enemyArmy.GetUnits();
+        List<UnitBase> allies = army.GetUnits();
+        List<UnitBase> enemies = army.enemyArmy.GetUnits();
 
         UpdateBasicRules(allies, enemies);
+        strategy.Update(allies, enemies);
 
-        switch ( armyModel.strategy )
-        {
-            case ArmyStrategy.Defensive:
-                UpdateDefensive(allies, enemies);
-                break;
-            case ArmyStrategy.Basic:
-                UpdateBasic(allies, enemies);
-                break;
-        }
-
-        animator.SetFloat("MovementSpeed", (transform.position - lastPosition).magnitude / speed);
+        animator.SetFloat("MovementSpeed", (transform.position - lastPosition).magnitude / properties.speed);
         lastPosition = transform.position;
     }
 
-    void UpdateBasicRules(List<GameObject> allies, List<GameObject> enemies)
+    void UpdateBasicRules(List<UnitBase> allies, List<UnitBase> enemies)
     {
         attackCooldown -= Time.deltaTime;
         EvadeAllies(allies);
     }
 
-    void EvadeAllies(List<GameObject> allies)
+    void EvadeAllies(List<UnitBase> allies)
     {
         var allUnits = army.GetUnits().Union(army.enemyArmy.GetUnits()).ToList();
 

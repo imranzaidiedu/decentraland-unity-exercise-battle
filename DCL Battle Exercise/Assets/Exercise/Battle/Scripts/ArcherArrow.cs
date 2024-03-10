@@ -10,7 +10,14 @@ public class ArcherArrow : MonoBehaviour
     [NonSerialized] public Vector3 target;
     [NonSerialized] public float attack;
 
-    public Army army;
+    public UnitBase source;
+
+    public void Initialise(Vector2 target, float attack, UnitBase source)
+    {
+        this.target = target;
+        this.attack = attack;
+        this.source = source;
+    }
 
     public void Update()
     {
@@ -18,14 +25,13 @@ public class ArcherArrow : MonoBehaviour
         transform.position += direction * speed;
         transform.forward = direction;
 
-        foreach ( var a in army.enemyArmy.GetUnits() )
+        foreach ( UnitBase unit in source.army.enemyArmy.GetUnits() )
         {
-            float dist = Vector3.Distance(a.transform.position, transform.position);
+            float dist = Vector3.Distance(unit.transform.position, transform.position);
 
             if (dist < speed)
             {
-                UnitBase unit = a.GetComponent<UnitBase>();
-                unit.Hit(gameObject);
+                unit.Hit(null, attack);
                 Destroy(gameObject);
                 return;
             }
