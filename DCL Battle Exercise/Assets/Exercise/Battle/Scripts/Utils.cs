@@ -29,6 +29,22 @@ public static class Utils
         return result;
     }
 
+    public static Vector3 GetCenter(List<UnitBase> objects)
+    {
+        Vector3 result = Vector3.zero;
+
+        foreach (var o in objects)
+        {
+            result += o.transform.position;
+        }
+
+        result.x /= objects.Count;
+        result.y /= objects.Count;
+        result.z /= objects.Count;
+
+        return result;
+    }
+
     public static Vector3 GetCenter( List<GameObject> objects )
     {
         Vector3 result = Vector3.zero;
@@ -55,6 +71,25 @@ public static class Utils
             float dist = Vector3.Distance(source.transform.position, obj.transform.position);
 
             if ( dist < minDist )
+            {
+                minDist = dist;
+                nearestObject = obj;
+            }
+        }
+
+        return minDist;
+    }
+
+    public static float GetNearestObject(UnitBase source, List<UnitBase> objects, out UnitBase nearestObject)
+    {
+        float minDist = float.MaxValue;
+        nearestObject = null;
+
+        foreach (var obj in objects)
+        {
+            float dist = Vector3.Distance(source.transform.position, obj.transform.position);
+
+            if (dist < minDist)
             {
                 minDist = dist;
                 nearestObject = obj;
